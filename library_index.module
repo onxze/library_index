@@ -42,20 +42,42 @@ function library_index_permission() {
  * @param type $lid
  * @return type
  */
-function library_index_read($lid = NULL) {
+function library_index_read() {
   $result = '';
-  $open = '';
-  
-  if ($lid === NULL) {
-    $lid = &drupal_static('library_index_read');
-  }
+//    $api = variable_get('library_index_api', '');
+//    $ldata = new LibraryIndexApi($api);
+  return $result;
+}
+
+/**
+ * Get library's open hours from kirjastot.fi library directory.
+ * @param type $lid library id
+ * @param type $start_date start day of result
+ * @return type open hours result object
+ */
+function library_index_get_open_hours($lid, $start_date = NULL) {
+  $result = '';
   if (isset($lid)) {
+//    $start_date = get_date('2014-10-20');
     $api = variable_get('library_index_api', '');
     $ldata = new LibraryIndexApi($api);
-    $result = $ldata->getOpenHours($lid);
-    if (count($result) == 1) {
-      $result = $result[0];
+    $result = $ldata->getOpenHours($lid, $start_date);
+    if ($result === NULL) {
+      // We have some kind of error!
+    } else {
+      if (count($result) == 1) {
+        $result = $result[0];
+      }
     }
   }
   return $result;
+}
+
+/**
+ * Helper function
+ */
+function get_date($date) {
+  $firstDate = strtotime($date);
+  $firstDate += date('Z');
+  return $firstDate;
 }
