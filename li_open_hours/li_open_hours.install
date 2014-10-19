@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * Implements hook_field_schema().
+ */
+function li_open_hours_field_schema($field) {
+  $columns = array(
+    'lid' => array('type' => 'varchar', 'length' => 7, 'not null' => FALSE),
+  );
+  $indexes = array(
+    'lid' => array('lid'),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes,
+  );
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function li_open_hours_uninstall() {
+  variable_del('lioh_content_type');
+  variable_del('lioh_lid_field');
+}

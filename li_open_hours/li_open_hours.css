@@ -1,0 +1,25 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 17.10.2014, 22:16:39
+    Author     : micha
+*/
+
+/*.loh_block .loh_header .loh-header-week {}
+
+.loh_block.loh_header .loh-header-date {}
+
+.loh_block .loh_row .loh-times {}*/
+
+.loh_block .loh_row .loh-label {
+  float: left;
+  width: 6em;
+}
+
+.loh_field .loh_row .loh-label {
+  float: left;
+  width: 7em;
+}

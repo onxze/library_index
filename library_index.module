@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * Read data from kirjastot.fi api and show library's open hours.
+ */
+include 'LibraryIndexApi.php';
+
+/**
+ * Implemtents hook_menu().
+ */
+function library_index_menu() {
+  $items = array();
+  $items['admin/config/system/library-index'] = array(
+      'title' => 'Library index',
+      'description' => 'Settings for library data request from kirjastot.fi api.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('library_index_admin'),
+      'access arguments' => array('administer library index'),
+      'file' => 'library_index.admin.inc',
+  );
+  $items['admin/config/system/library-index/general'] = array(
+      'title' => 'General settings',
+      'type' => MENU_DEFAULT_LOCAL_TASK,
+      'weight' => -10,
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function library_index_permission() {
+  return array(
+      'administer library index' => array(
+          'title' => t('Administer library Index', array(), array('context' => 'library_index')),
+      ),
+  );
+}
+
+/**
+ * Read data from kirjastot.fi api.
+ * @param type $lid
+ * @return type
+ */
+function library_index_read($lid = NULL) {
+  $result = '';
+  $open = '';
+  
+  if ($lid === NULL) {
+    $lid = &drupal_static('library_index_read');
+  }
+  if (isset($lid)) {
+    $api = variable_get('library_index_api', '');
+    $ldata = new LibraryIndexApi($api);
+    $result = $ldata->getOpenHours($lid);
+    if (count($result) == 1) {
+      $result = $result[0];
+    }
+  }
+  return $result;
+}

@@ -1,0 +1,229 @@
+<?php
+
+/**
+ * Field for library's open hours.
+ */
+
+
+/**
+ * Implemtents hook_menu().
+ */
+function li_open_hours_menu() {
+  $items = array();
+  $items['admin/config/system/library-index/open-hours'] = array(
+      'title' => 'Library Open Huors',
+      'description' => 'Settings for library open hours.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('li_open_hours_admin'),
+      'access arguments' => array('administer library index'),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'li_open_hours.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_field_info().
+ */
+function li_open_hours_field_info() {
+  return array(
+      'li_open_hours' => array(
+          'label' => t('Library open hours'),
+          'description' => t('Library open hours from kirjastot.fi library index'),
+          'default_widget' => 'li_open_hours_id',
+          'default_formatter' => 'li_open_hours_texts',
+      ),
+  );
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function li_open_hours_field_is_empty($item, $field) {
+  return empty($item['lid']);
+}
+
+function li_open_hours_field_formatter_info() {
+  return array(
+      'li_open_hours_texts' => array(
+          'label' => t('Simple text-based formatter'),
+          'field types' => array('li_open_hours'),
+      ),
+  );
+}
+
+/**
+ * Implements hook_field_formater_view().
+ */
+function li_open_hours_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    case 'li_open_hours_texts':
+      foreach ($items as $delta => $item) {
+        drupal_add_css(drupal_get_path('module', 'li_open_hours') . '/li_open_hours.css', 'module', 'all', FALSE);
+        $data = library_index_read($item['lid']);
+        $element[$delta] = array(
+            '#type' => 'html_tag',
+            '#tag' => 'p',
+            '#value' => theme('li_open_hours_field', array('open_hours' => $data)),
+        );
+      }
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function li_open_hours_field_widget_info() {
+  return array(
+      'li_open_hours_id' => array(
+          'label' => t('Library Id'),
+          'field types' => array('li_open_hours'),
+      ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function li_open_hours_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $value = isset($items[$delta]['lid']) ? $items[$delta]['lid'] : '';
+
+  $widget = $element;
+  $widget['#delta'] = $delta;
+
+  switch ($instance['widget']['type']) {
+
+    case 'li_open_hours_id':
+      $widget += array(
+          '#type' => 'textfield',
+          '#default_value' => $value,
+          '#size' => 7,
+          '#maxlength' => 7,
+      );
+      break;
+  }
+
+  $element['lid'] = $widget;
+  return $element;
+}
+
+/**
+ * Implements hook_node_view().
+ * Check if content type for library open hours block is set and
+ * in which field the library id is to be found.
+ */
+function li_open_hours_node_view($node, $view_mode, $langcode) {
+  $loh_content_type = variable_get('lioh_content_type', 'none');
+  if ($node->type == $loh_content_type) {
+    $loh_field = variable_get('lioh_lid_field', 'none');
+    $lid_field = $node->$loh_field;
+    if (isset($lid_field[LANGUAGE_NONE])) {
+      $key = key(current($lid_field[LANGUAGE_NONE]));
+      $lid = &drupal_static('library_index_read');
+      $lid = $lid_field[LANGUAGE_NONE][0][$key];
+    }
+  }
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function li_open_hours_block_info() {
+  $blocks['block_open_hours'] = array(
+      'info' => t('Library open hours'),
+//      'cache' => DRUPAL_CACHE_PER_ROLE,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function li_open_hours_block_view($delta = '') {
+  $block = array();
+
+  switch ($delta) {
+    case 'block_open_hours':
+      drupal_add_css(drupal_get_path('module', 'li_open_hours') . '/li_open_hours.css', 'module', 'all', FALSE);
+      $block['subject'] = t('Open hours');
+      $data = library_index_read();
+      $block['content'] = theme('li_open_hours_block', array('open_hours' => $data));
+      break;
+  }
+  return $block;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function li_open_hours_theme() {
+  $themes = array(
+      'li_open_hours_block' => array(
+          'arguments' => array('result' => NULL),
+          'template' => 'li-open-hours-block',
+      ),
+      'li_open_hours_field' => array(
+          'arguments' => array('result' => NULL),
+          'template' => 'li-open-hours-field',
+      ),
+  );
+  return $themes;
+}
+
+/**
+ * Process variables for li_open_hours_block.tpl.php.
+ *
+ * @see li-open-hours-block.tpl.php
+ */
+function template_preprocess_li_open_hours_block(&$variables) {
+  li_open_hours_make_date($variables);
+}
+
+/**
+ * Process variables for li_open_hours_field.tpl.php.
+ *
+ * @see li-open-hours-field.tpl.php
+ */
+function template_preprocess_li_open_hours_field(&$variables) {
+  li_open_hours_make_date($variables);
+}
+
+/**
+ * Creates needed variables to template.
+ * @param type $variables variable to template
+ */
+function li_open_hours_make_date(&$variables) {
+  $en_days = array('Sunday', 
+    'Monday', 'Tuesday', 'Wednesday' , 'Thursday', 'Friday', 'Saturday', 'Sunday');
+
+  $open_hours = $variables['open_hours'];
+
+  $start = current($open_hours);
+  $end = end($open_hours);
+  $start_date = explode('-', $start->date);
+  $start_end = explode('-', $end->date);
+
+  $variables['header_week'] = t('Week') . ' ' . $open_hours[0]->week;
+  $variables['header_date'] = $start_date[2] . '.' . $start_date[1] .
+          '. - ' . $start_end[2] . '.' . $start_end[1];
+
+  foreach ($open_hours as $day) {
+    $row['day'] = t($en_days[$day->day]);
+    if (empty($day->opens)) {
+      $row['times'] = t('Closed');
+      $row['start_time'] = t('Closed');
+      $row['end_time'] = '';
+    } else {
+      $row['times'] = $day->opens . ' - ' . $day->closes;
+      $row['start_time'] = $day->opens;
+      $row['end_time'] = $day->closes;
+    }
+    $rows[] = $row;
+  }
+  $variables['rows'] = $rows;
+}

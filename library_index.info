@@ -1,0 +1,7 @@
+name = Library Index Api
+description = Query library data from kirjastot.fi.
+package = Library Index
+core = 7.x
+
+files[] = library_index.module
+files[] = LibraryIndexApi.php
