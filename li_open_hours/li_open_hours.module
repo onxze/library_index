@@ -4,7 +4,6 @@
  * Field for library's open hours.
  */
 
-
 /**
  * Implemtents hook_menu().
  */
@@ -62,7 +61,7 @@ function li_open_hours_field_formatter_view($entity_type, $entity, $field, $inst
     case 'li_open_hours_texts':
       foreach ($items as $delta => $item) {
         drupal_add_css(drupal_get_path('module', 'li_open_hours') . '/li_open_hours.css', 'module', 'all', FALSE);
-        $data = library_index_read($item['lid']);
+        $data = library_index_get_open_hours($item['lid']);
         $element[$delta] = array(
             '#type' => 'html_tag',
             '#tag' => 'p',
@@ -124,7 +123,7 @@ function li_open_hours_node_view($node, $view_mode, $langcode) {
     $lid_field = $node->$loh_field;
     if (isset($lid_field[LANGUAGE_NONE])) {
       $key = key(current($lid_field[LANGUAGE_NONE]));
-      $lid = &drupal_static('library_index_read');
+      $lid = &drupal_static('li_open_hours_lid');
       $lid = $lid_field[LANGUAGE_NONE][0][$key];
     }
   }
@@ -151,7 +150,8 @@ function li_open_hours_block_view($delta = '') {
     case 'block_open_hours':
       drupal_add_css(drupal_get_path('module', 'li_open_hours') . '/li_open_hours.css', 'module', 'all', FALSE);
       $block['subject'] = t('Open hours');
-      $data = library_index_read();
+      $lid = &drupal_static('li_open_hours_lid');
+      $data = library_index_get_open_hours($lid);
       $block['content'] = theme('li_open_hours_block', array('open_hours' => $data));
       break;
   }
@@ -198,8 +198,8 @@ function template_preprocess_li_open_hours_field(&$variables) {
  * @param type $variables variable to template
  */
 function li_open_hours_make_date(&$variables) {
-  $en_days = array('Sunday', 
-    'Monday', 'Tuesday', 'Wednesday' , 'Thursday', 'Friday', 'Saturday', 'Sunday');
+  $en_days = array('Sunday',
+      'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
 
   $open_hours = $variables['open_hours'];
 
