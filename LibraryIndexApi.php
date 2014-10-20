@@ -38,7 +38,13 @@ class LibraryIndexApi {
               '&date<=' . date('Y-m-d', $lastDate);
     }
 
-    $query = 'schedules/' . $lid . '?as_weeks=1' . $date;
+    $query = 'libraries/schedules/' . $lid . '?as_weeks=1' . $date;
+    $responseAsObject = $this->queryData($query);
+    return $responseAsObject;
+  }
+
+  public function getLibraryList($consortium) {
+    $query = 'search/libraries?consortium=' . $consortium;
     $responseAsObject = $this->queryData($query);
     return $responseAsObject;
   }
@@ -96,7 +102,7 @@ class LibraryIndexApi {
       $this->setError('LIA_NO_API_URL', t('No Api URL'));
       return NULL;
     }
-    $fullURL = $this->apiUrl . 'libraries/' . $query;
+    $fullURL = $this->apiUrl . $query;
     $this->httpStatus = 0;
 
     $curl = curl_init();

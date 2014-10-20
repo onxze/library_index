@@ -18,6 +18,15 @@ function library_index_menu() {
       'access arguments' => array('administer library index'),
       'file' => 'library_index.admin.inc',
   );
+  $items['admin/config/system/library-index/list'] = array(
+      'title' => 'Library Id list',
+      'description' => 'Library list from kirjastot.fi api.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('library_index_list'),
+      'access arguments' => array('administer library index'),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'library_index.admin.inc',
+  );
   $items['admin/config/system/library-index/general'] = array(
       'title' => 'General settings',
       'type' => MENU_DEFAULT_LOCAL_TASK,
@@ -80,4 +89,11 @@ function get_date($date) {
   $firstDate = strtotime($date);
   $firstDate += date('Z');
   return $firstDate;
+}
+
+function library_index_get_list($consortium) {
+  $api = variable_get('library_index_api', '');
+  $ldata = new LibraryIndexApi($api);
+  $result = $ldata->getLibraryList($consortium);
+  return $result;
 }
