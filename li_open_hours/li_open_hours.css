@@ -30,3 +30,11 @@ and open the template in the editor.
 .loh-field .loh-next {
   padding-left: 3em;
 }
+
+.li-open-close.li-open span {
+  background-color: #00FF00;
+}
+
+.li-open-close.li-close span {
+  background-color: #FF0000;
+}

@@ -55,6 +55,10 @@ function li_open_hours_field_formatter_info() {
           'label' => t('Simple text-based formatter'),
           'field types' => array('li_open_hours'),
       ),
+      'li_open_hours_on_off' => array(
+          'label' => t('Current status of library open or close'),
+          'field types' => array('li_open_hours'),
+      ),
   );
 }
 
@@ -72,10 +76,38 @@ function li_open_hours_field_formatter_view($entity_type, $entity, $field, $inst
 //        $start_date = library_index_get_date('2014-12-22');
 //        $data = library_index_get_open_hours('b930', $start_date);
         $data = library_index_get_open_hours($item['lid']);
+//        dpm($data);
         $element[$delta] = array(
             '#type' => 'html_tag',
             '#tag' => 'p',
             '#value' => theme('li_open_hours_field', array('open_hours' => $data, 'lid' => $item['lid'])),
+        );
+      }
+      break;
+    case 'li_open_hours_on_off':
+      foreach ($items as $delta => $item) {
+        $state = t('Close');
+        $state_class = 'li-close';
+        $data = library_index_get_open_hours($item['lid']);
+        $now = date('Y-m-d g:i', time());
+        foreach ($data as $value) {
+          $closing = strtotime($value->date . ' ' . $value->closes);
+          if($now > $closing) {
+            continue;
+          }
+          $opens = strtotime($value->date . ' ' . $value->opens);
+          if($now > $opens) {
+            $state = t('Open');
+            $state_class = 'li-open';
+            break;
+          }
+        }
+        $element[$delta] = array(
+            '#type' => 'html_tag',
+            '#prefix' => '<div class="li-open-close ' .  $state_class . '">',
+            '#suffix' => '</div>', 
+            '#tag' => 'span',
+            '#value' => $state,
         );
       }
       break;
@@ -252,20 +284,7 @@ function li_open_hours_make_date(&$variables) {
 }
 
 /**
- * Callback for link example.
- *
- * Takes different logic paths based on whether Javascript was enabled.
- * If $type == 'ajax', it tells this function that ajax.js has rewritten
- * the URL and thus we are doing an AJAX and can return an array of commands.
- *
- * @param string $type
- *   Either 'ajax' or 'nojs. Type is simply the normal URL argument to this URL.
- *
- * @return string|array
- *   If $type == 'ajax', returns an array of AJAX Commands.
- *   Otherwise, just returns the content, which will end up being a page.
- *
- * @ingroup ajax_example
+ * Callback for next/prev links.
  */
 function li_open_hours_link_response($type = 'ajax', $direction = 0, $lid = NULL, $date = NULL) {
   if (empty($lid) || empty($date)) {
