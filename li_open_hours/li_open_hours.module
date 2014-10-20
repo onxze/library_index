@@ -18,6 +18,13 @@ function li_open_hours_menu() {
       'type' => MENU_LOCAL_TASK,
       'file' => 'li_open_hours.admin.inc',
   );
+    // A menu callback is required when using ajax outside of the Form API.
+  $items['li_next_week'] = array(
+    'page callback' => 'li_open_hours_link_response',
+    'access callback' => 'user_access',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
@@ -61,11 +68,14 @@ function li_open_hours_field_formatter_view($entity_type, $entity, $field, $inst
     case 'li_open_hours_texts':
       foreach ($items as $delta => $item) {
         drupal_add_css(drupal_get_path('module', 'li_open_hours') . '/li_open_hours.css', 'module', 'all', FALSE);
+        drupal_add_library('system', 'drupal.ajax');
+//        $start_date = library_index_get_date('2014-12-22');
+//        $data = library_index_get_open_hours('b930', $start_date);
         $data = library_index_get_open_hours($item['lid']);
         $element[$delta] = array(
             '#type' => 'html_tag',
             '#tag' => 'p',
-            '#value' => theme('li_open_hours_field', array('open_hours' => $data)),
+            '#value' => theme('li_open_hours_field', array('open_hours' => $data, 'lid' => $item['lid'])),
         );
       }
       break;
@@ -191,6 +201,19 @@ function template_preprocess_li_open_hours_block(&$variables) {
  */
 function template_preprocess_li_open_hours_field(&$variables) {
   li_open_hours_make_date($variables);
+  $prev_link = l(t('Previous'),
+          'li_next_week/nojs/0/' .
+          $variables['lid'] . '/' .
+          $variables['open_hours'][0]->date,
+          array('attributes' => array('class' => array('use-ajax'))));
+  $variables['prev_link'] = $prev_link;
+
+  $next_link = l(t('Next'),
+          'li_next_week/nojs/1/' .
+          $variables['lid'] . '/' .
+          $variables['open_hours'][0]->date,
+          array('attributes' => array('class' => array('use-ajax'))));
+  $variables['next_link'] = $next_link;
 }
 
 /**
@@ -226,4 +249,45 @@ function li_open_hours_make_date(&$variables) {
     $rows[] = $row;
   }
   $variables['rows'] = $rows;
+}
+
+/**
+ * Callback for link example.
+ *
+ * Takes different logic paths based on whether Javascript was enabled.
+ * If $type == 'ajax', it tells this function that ajax.js has rewritten
+ * the URL and thus we are doing an AJAX and can return an array of commands.
+ *
+ * @param string $type
+ *   Either 'ajax' or 'nojs. Type is simply the normal URL argument to this URL.
+ *
+ * @return string|array
+ *   If $type == 'ajax', returns an array of AJAX Commands.
+ *   Otherwise, just returns the content, which will end up being a page.
+ *
+ * @ingroup ajax_example
+ */
+function li_open_hours_link_response($type = 'ajax', $direction = 0, $lid = NULL, $date = NULL) {
+  if (empty($lid) || empty($date)) {
+    return;
+  }
+  if ($type == 'ajax') {
+    $start_date = library_index_get_date($date);
+    if ($direction == 0) {
+      $start_date -= (7 * 24 * 60 * 60);
+    }
+    else {
+      $start_date += (7 * 24 * 60 * 60);
+    }
+    $data = library_index_get_open_hours($lid, $start_date);
+    $output = theme('li_open_hours_field', array('open_hours' => $data, 'lid' => $lid));
+    $commands = array();
+    $commands[] = ajax_command_replace('#loh-open-hours-field', $output);
+    $page = array('#type' => 'ajax', '#commands' => $commands);
+    ajax_deliver($page);
+  }
+  else {
+    $output = t("This is some content delivered via a page load.");
+    return $output;
+  }
 }

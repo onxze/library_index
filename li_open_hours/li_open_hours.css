@@ -14,12 +14,19 @@ and open the template in the editor.
 
 .loh_block .loh_row .loh-times {}*/
 
-.loh_block .loh_row .loh-label {
+.loh-block .loh-row .loh-label {
   float: left;
   width: 6em;
 }
 
-.loh_field .loh_row .loh-label {
+.loh-field .loh-row .loh-label {
   float: left;
   width: 7em;
+}
+
+.loh-field .loh-prev {
+  padding-left: 1em;
+}
+.loh-field .loh-next {
+  padding-left: 3em;
 }

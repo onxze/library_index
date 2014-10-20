@@ -8,13 +8,13 @@
  * $rows          Array for day and open hours two elements day and times.
  */
 ?>
-<div class="loh_block">
-  <div class="loh_header">
+<div class="loh-block">
+  <div class="loh-header">
     <span class="loh-header-week"><?php echo $header_week ?></span>
     <span class="loh-header-date"><?php echo $header_date ?></span>
   </div>
   <?php foreach ($rows as $day) { ?>
-  <div class="loh_row">
+  <div class="loh-row">
       <span class="loh-label"><?php echo $day['day'] ?></span>
       <span class="loh-times">
         <span class="loh-times"><?php echo $day['start_time'] ?></span>
