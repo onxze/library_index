@@ -31,21 +31,51 @@ class LibraryIndexApi {
    */
   public function getOpenHours($lid, $firstDate = NULL) {
     $date = '';
+    $cacheKey = 'field-li-' . $lid;
 
     if (!empty($firstDate)) {
       $lastDate = $firstDate + (6 * 24 * 60 * 60);
-      $date = '&date>=' . date('Y-m-d', $firstDate) .
-              '&date<=' . date('Y-m-d', $lastDate);
+      $strFirstDate = date('Y-m-d', $firstDate);
+      $strLastDate = date('Y-m-d', $lastDate);
+      $date = '&date>=' . $strFirstDate .
+              '&date<=' . $strLastDate;
+      $cacheKey .= '-' . $strFirstDate . '-' . $strLastDate;
     }
 
-    $query = 'libraries/schedules/' . $lid . '?as_weeks=1' . $date;
-    $responseAsObject = $this->queryData($query);
+    $cacheData = cache_get($cacheKey, 'cache_field');
+    $cacheTimeout = variable_get('library_index_cache_timeout', 0) * 3600;
+    if ($cacheTimeout > 0) {
+      if (time() > $cacheData->created + $cacheTimeout) {
+        $cacheData = NULL;
+      }
+    }
+    if (isset($cacheData->data)) {
+      $responseAsObject = $cacheData->data;
+    }
+    else {
+      $query = 'libraries/schedules/' . $lid . '?as_weeks=1' . $date;
+      $responseAsObject = $this->queryData($query);
+      cache_set($cacheKey, $responseAsObject, 'cache_field', CACHE_TEMPORARY);
+    }
     return $responseAsObject;
   }
 
+  /**
+   * Get list libraries in consortium.
+   * @param type $consortiun consortium which data is asked
+   * @return type returned response or NULL
+   */
   public function getLibraryList($consortium) {
-    $query = 'search/libraries?consortium=' . $consortium;
-    $responseAsObject = $this->queryData($query);
+    $cacheKey = 'field-li-' . $consortium;
+    $cacheData = cache_get($cacheKey, 'cache_field');
+    if (isset($cacheData->data)) {
+      $responseAsObject = $cacheData->data;
+    }
+    else {
+      $query = 'search/libraries?consortium=' . $consortium;
+      $responseAsObject = $this->queryData($query);
+      cache_set($cacheKey, $responseAsObject, 'cache_field', CACHE_TEMPORARY);
+    }
     return $responseAsObject;
   }
 

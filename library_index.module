@@ -27,6 +27,15 @@ function library_index_menu() {
       'type' => MENU_LOCAL_TASK,
       'file' => 'library_index.admin.inc',
   );
+  $items['admin/config/system/library-index/cache'] = array(
+      'title' => 'Cache',
+      'description' => 'Library Index cache settings.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('library_index_cache'),
+      'access arguments' => array('administer library index'),
+      'type' => MENU_LOCAL_TASK,
+      'file' => 'library_index.admin.inc',
+  );
   $items['admin/config/system/library-index/general'] = array(
       'title' => 'General settings',
       'type' => MENU_DEFAULT_LOCAL_TASK,

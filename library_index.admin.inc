@@ -3,8 +3,6 @@
 /**
  * @file
  * Library directory settings form.
- *
- * Last modified: 17.10.2014 Mika Hatakka
  */
 
 /**
@@ -53,4 +51,35 @@ function library_index_list() {
     );
   }
   return system_settings_form($form);
+}
+
+/**
+ * Library Index cache settings form.
+ */
+function library_index_cache() {
+  $form = array();
+
+  $form['li_cache_clear'] = array(
+      '#type' => 'submit',
+      '#value' => t('Clear Library Index cache'),
+      '#submit' => array('library_index_cache_clear_submit'),
+  );
+
+  $form['library_index_cache_timeout'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Cache timeout'),
+      '#default_value' => variable_get('library_index_cache_timeout', 0),
+      '#description' => t("Library Index cache timeout, hours. Time after data is again read from Kirjasto hakemisto. If 0 then no cache timeout. Cache is cleared only at system cache clear."),
+      '#required' => TRUE,
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Library Index cache clear function.
+ */
+function library_index_cache_clear_submit() {
+  cache_clear_all('field-li', 'cache_field', TRUE);
+  drupal_set_message(t('Library Index cache cleared.'));
 }
