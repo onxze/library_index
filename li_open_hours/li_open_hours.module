@@ -46,7 +46,7 @@ function li_open_hours_field_info() {
  * Implements hook_field_is_empty().
  */
 function li_open_hours_field_is_empty($item, $field) {
-  return empty($item['lid']);
+  return empty($item['value']);
 }
 
 function li_open_hours_field_formatter_info() {
@@ -75,12 +75,12 @@ function li_open_hours_field_formatter_view($entity_type, $entity, $field, $inst
         drupal_add_library('system', 'drupal.ajax');
 //        $start_date = library_index_get_date('2014-12-22');
 //        $data = library_index_get_open_hours('b930', $start_date);
-        $data = library_index_get_open_hours($item['lid']);
+        $data = library_index_get_open_hours($item['value']);
 //        dpm($data);
         $element[$delta] = array(
             '#type' => 'html_tag',
             '#tag' => 'p',
-            '#value' => theme('li_open_hours_field', array('open_hours' => $data, 'lid' => $item['lid'])),
+            '#value' => theme('li_open_hours_field', array('open_hours' => $data, 'lid' => $item['value'])),
         );
       }
       break;
@@ -88,14 +88,17 @@ function li_open_hours_field_formatter_view($entity_type, $entity, $field, $inst
       foreach ($items as $delta => $item) {
         $state = t('Close');
         $state_class = 'li-close';
-        $data = library_index_get_open_hours($item['lid']);
-        $now = date('Y-m-d g:i', time());
+        $data = library_index_get_open_hours($item['value']);
+        $now = time();
+        //dpm($now, 'now');
         foreach ($data as $value) {
           $closing = strtotime($value->date . ' ' . $value->closes);
+          //dpm($closing, 'closing');
           if($now > $closing) {
             continue;
           }
           $opens = strtotime($value->date . ' ' . $value->opens);
+          //dpm($opens, 'opens');
           if($now > $opens) {
             $state = t('Open');
             $state_class = 'li-open';
@@ -132,7 +135,7 @@ function li_open_hours_field_widget_info() {
  * Implements hook_field_widget_form().
  */
 function li_open_hours_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-  $value = isset($items[$delta]['lid']) ? $items[$delta]['lid'] : '';
+  $value = isset($items[$delta]['value']) ? $items[$delta]['value'] : '';
 
   $widget = $element;
   $widget['#delta'] = $delta;
@@ -149,7 +152,7 @@ function li_open_hours_field_widget_form(&$form, &$form_state, $field, $instance
       break;
   }
 
-  $element['lid'] = $widget;
+  $element['value'] = $widget;
   return $element;
 }
 
@@ -162,11 +165,12 @@ function li_open_hours_node_view($node, $view_mode, $langcode) {
   $loh_content_type = variable_get('lioh_content_type', 'none');
   if ($node->type == $loh_content_type) {
     $loh_field = variable_get('lioh_lid_field', 'none');
-    $lid_field = $node->$loh_field;
-    if (isset($lid_field[LANGUAGE_NONE])) {
-      $key = key(current($lid_field[LANGUAGE_NONE]));
-      $lid = &drupal_static('li_open_hours_lid');
-      $lid = $lid_field[LANGUAGE_NONE][0][$key];
+    if(isset($node->$loh_field)) {
+      $lid_field = $node->$loh_field;
+      if (isset($lid_field[LANGUAGE_NONE])) {
+        $lid = &drupal_static('li_open_hours_lid');
+        $lid = $lid_field[LANGUAGE_NONE][0]['value'];
+      }
     }
   }
 }
