@@ -92,7 +92,9 @@ function library_index_get_open_hours($lid, $start_date = NULL) {
 }
 
 /**
- * Helper function
+ * Return timestamp of given date string presentation.
+ * @param string $date date to convert
+ * @return int timestamp
  */
 function library_index_get_date($date) {
   $firstDate = strtotime($date);
@@ -100,6 +102,9 @@ function library_index_get_date($date) {
   return $firstDate;
 }
 
+/**
+ * Get library id code list for given consortium.
+ */
 function library_index_get_list($consortium) {
   $api = variable_get('library_index_api', '');
   $ldata = new LibraryIndexApi($api);
