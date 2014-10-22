@@ -76,6 +76,12 @@ function library_index_cache() {
   return system_settings_form($form);
 }
 
+function library_index_cache_validate($form, &$form_state) {
+  if (!is_numeric($form_state['values']['library_index_cache_timeout'])) {
+    form_set_error('Cache timeout', t('Cache timeout has to be number between 0 - 1440.'));
+  }
+}
+
 /**
  * Library Index cache clear function.
  */
