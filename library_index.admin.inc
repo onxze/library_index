@@ -80,6 +80,6 @@ function library_index_cache() {
  * Library Index cache clear function.
  */
 function library_index_cache_clear_submit() {
-  cache_clear_all('field-li', 'cache_field', TRUE);
+  LibraryIndexApi::clearLibraryIndexCache();
   drupal_set_message(t('Library Index cache cleared.'));
 }

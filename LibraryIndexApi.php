@@ -10,6 +10,8 @@ class LibraryIndexApi {
   private $code;
   private $errorMessage;
 
+  private static $cache_prefix = 'field-li-';
+
   const LIA_NO_ERROR = 0;
   const NO_API_URL = 1;
   const LIA_CURL_FAIL = 2;
@@ -23,6 +25,10 @@ class LibraryIndexApi {
     $this->apiUrl = $apiUrl;
   }
 
+  public static function clearLibraryIndexCache() {
+    cache_clear_all(self::$cache_prefix, 'cache_field', TRUE);
+  }
+
   /**
    * Read Library's Open Hours from kirjastot.fi api.
    * @param type $lid Library id at kirjastot.fi
@@ -31,7 +37,7 @@ class LibraryIndexApi {
    */
   public function getOpenHours($lid, $firstDate = NULL) {
     $date = '';
-    $cacheKey = 'field-li-' . $lid;
+    $cacheKey = self::$cache_prefix . $lid;
 
     if (!empty($firstDate)) {
       $lastDate = $firstDate + (6 * 24 * 60 * 60);
@@ -45,13 +51,7 @@ class LibraryIndexApi {
       $cacheKey .= '-' . date('W', time());
     }
 
-    $cacheData = cache_get($cacheKey, 'cache_field');
-    $cacheTimeout = variable_get('library_index_cache_timeout', 0) * 3600;
-    if ($cacheTimeout > 0) {
-      if (isset($cacheData->created) && time() > $cacheData->created + $cacheTimeout) {
-        $cacheData = NULL;
-      }
-    }
+    $cacheData = $this->getCacheData($cacheKey);
     if (isset($cacheData->data)) {
       $responseAsObject = $cacheData->data;
     }
@@ -76,11 +76,19 @@ class LibraryIndexApi {
     if (date('w', $date) == 0) {
       $strFirstDate = date('Y-m-d', $date - 86400);
     }
-    $dateRange = '?date>=' . $strFirstDate . '&date<=' . $strLastDate;
-    $query = 'libraries/schedules/' . $lid . $dateRange;
-    $responseAsObject = $this->queryData($query);
-    if (date('w', $date) == 0) {
-      array_shift($responseAsObject);
+    $cacheKey = self::$cache_prefix . $lid . '--' . $strLastDate;
+    $cacheData = $this->getCacheData($cacheKey);
+    if (isset($cacheData->data)) {
+      $responseAsObject = $cacheData->data;
+    }
+    else {
+      $dateRange = '?date>=' . $strFirstDate . '&date<=' . $strLastDate;
+      $query = 'libraries/schedules/' . $lid . $dateRange;
+      $responseAsObject = $this->queryData($query);
+      if (date('w', $date) == 0) {
+        array_shift($responseAsObject);
+      }
+      cache_set($cacheKey, $responseAsObject, 'cache_field', CACHE_TEMPORARY);
     }
     return $responseAsObject;
   }
@@ -91,7 +99,7 @@ class LibraryIndexApi {
    * @return type returned response or NULL
    */
   public function getLibraryList($consortium) {
-    $cacheKey = 'field-li-' . $consortium;
+    $cacheKey = self::$cache_prefix . $consortium;
     $cacheData = cache_get($cacheKey, 'cache_field');
     if (isset($cacheData->data)) {
       $responseAsObject = $cacheData->data;
@@ -144,6 +152,17 @@ class LibraryIndexApi {
   private function clearError() {
     $this->code = 'LIA_NO_ERROR';
     $this->errorMessage = NULL;
+  }
+
+  private function getCacheData($cacheKey) {
+    $cacheData = cache_get($cacheKey, 'cache_field');
+    $cacheTimeout = variable_get('library_index_cache_timeout', 0) * 3600;
+    if ($cacheTimeout > 0) {
+      if (isset($cacheData->created) && time() > $cacheData->created + $cacheTimeout) {
+        $cacheData = NULL;
+      }
+    }
+    return $cacheData;
   }
 
   /**
