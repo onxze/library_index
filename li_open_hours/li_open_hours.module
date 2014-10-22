@@ -253,6 +253,7 @@ function template_preprocess_li_open_hours_field(&$variables) {
 function li_open_hours_make_date(&$variables) {
   $en_days = array('Sunday',
       'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
+  $today = date('Y-m-d');
 
   $open_hours = $variables['open_hours'];
 
@@ -266,6 +267,7 @@ function li_open_hours_make_date(&$variables) {
           '. - ' . $start_end[2] . '.' . $start_end[1];
 
   foreach ($open_hours as $day) {
+    $row = array();
     $row['day'] = t($en_days[$day->day]);
     if (empty($day->opens)) {
       $row['times'] = t('Closed');
@@ -275,6 +277,9 @@ function li_open_hours_make_date(&$variables) {
       $row['times'] = $day->opens . ' - ' . $day->closes;
       $row['start_time'] = $day->opens;
       $row['end_time'] = $day->closes;
+    }
+    if ($day->date == $today) {
+      $row['today_class'] = 'li-today';
     }
     $rows[] = $row;
   }

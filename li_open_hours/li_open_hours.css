@@ -38,3 +38,7 @@ and open the template in the editor.
 .li-open-close.li-close span {
   background-color: #FF0000;
 }
+
+.loh-field .li-today {
+  font-weight: bold;
+}

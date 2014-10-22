@@ -14,7 +14,7 @@
     <span class="loh-header-date"><?php echo $header_date ?></span>
   </div>
   <?php foreach ($rows as $day) { ?>
-  <div class="loh-row">
+  <div class="loh-row<?php if (isset($day['today_class'])) { echo ' ' . $day['today_class']; } ?>">
       <span class="loh-label"><?php echo $day['day'] ?></span>
       <span class="loh-times">
         <span class="loh-times"><?php echo $day['start_time'] ?></span>
