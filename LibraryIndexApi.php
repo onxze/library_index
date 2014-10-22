@@ -41,11 +41,14 @@ class LibraryIndexApi {
               '&date<=' . $strLastDate;
       $cacheKey .= '-' . $strFirstDate . '-' . $strLastDate;
     }
+    else {
+      $cacheKey .= '-' . date('W', time());
+    }
 
     $cacheData = cache_get($cacheKey, 'cache_field');
     $cacheTimeout = variable_get('library_index_cache_timeout', 0) * 3600;
     if ($cacheTimeout > 0) {
-      if (time() > $cacheData->created + $cacheTimeout) {
+      if (isset($cacheData->created) && time() > $cacheData->created + $cacheTimeout) {
         $cacheData = NULL;
       }
     }
