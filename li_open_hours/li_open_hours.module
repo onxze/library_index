@@ -69,8 +69,8 @@ function li_open_hours_field_formatter_view($entity_type, $entity, $field, $inst
   $element = array();
   switch ($display['type']) {
     case 'li_open_hours_texts':
+      drupal_add_css(drupal_get_path('module', 'li_open_hours') . '/li_open_hours.css', 'module', 'all', FALSE);
       foreach ($items as $delta => $item) {
-        drupal_add_css(drupal_get_path('module', 'li_open_hours') . '/li_open_hours.css', 'module', 'all', FALSE);
         drupal_add_library('system', 'drupal.ajax');
         $data = library_index_get_open_hours($item['value']);
         $element[$delta] = array(
@@ -81,14 +81,15 @@ function li_open_hours_field_formatter_view($entity_type, $entity, $field, $inst
       }
       break;
     case 'li_open_hours_on_off':
+      drupal_add_css(drupal_get_path('module', 'li_open_hours') . '/li_open_hours.css', 'module', 'all', FALSE);
       foreach ($items as $delta => $item) {
         $state = t('Close');
         $state_class = 'li-close';
-        $data = library_index_get_open_hours($item['value']);
+        $data = library_index_get_today_open_hours($item['value']);
         $now = time();
         foreach ($data as $value) {
           $closing = strtotime($value->date . ' ' . $value->closes);
-          if($now > $closing) {
+          if($closing === NULL || $now > $closing) {
             continue;
           }
           $opens = strtotime($value->date . ' ' . $value->opens);

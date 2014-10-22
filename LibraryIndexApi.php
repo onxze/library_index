@@ -64,6 +64,28 @@ class LibraryIndexApi {
   }
 
   /**
+   * Get one day open hour.
+   * Special handling for Sunday open hours, needs ask also Saturday
+   * open hour.
+   * @param type $lid Library id at kirjastot.fi
+   * @param type $date date of open hour.
+   * @return type returned response or NULL
+   */
+  function getDailyOpenHour($lid, $date) {
+    $strFirstDate = $strLastDate = date('Y-m-d', $date);
+    if (date('w', $date) == 0) {
+      $strFirstDate = date('Y-m-d', $date - 86400);
+    }
+    $dateRange = '?date>=' . $strFirstDate . '&date<=' . $strLastDate;
+    $query = 'libraries/schedules/' . $lid . $dateRange;
+    $responseAsObject = $this->queryData($query);
+    if (date('w', $date) == 0) {
+      array_shift($responseAsObject);
+    }
+    return $responseAsObject;
+  }
+
+  /**
    * Get list libraries in consortium.
    * @param type $consortiun consortium which data is asked
    * @return type returned response or NULL

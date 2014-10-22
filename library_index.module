@@ -92,6 +92,19 @@ function library_index_get_open_hours($lid, $start_date = NULL) {
 }
 
 /**
+ * Ask today's open hour.
+ */
+function library_index_get_today_open_hours($lid) {
+  $result = '';
+  if (isset($lid)) {
+    $api = variable_get('library_index_api', '');
+    $ldata = new LibraryIndexApi($api);
+    $result = $ldata->getDailyOpenHour($lid, time());
+    return $result;
+  }
+}
+
+/**
  * Return timestamp of given date string presentation.
  * @param string $date date to convert
  * @return int timestamp
