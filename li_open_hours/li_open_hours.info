@@ -1,5 +1,5 @@
 name = Library Open Hours
-description = Oppen Hours information from Library Index, kirjastot.fi.
+description = Open Hours information from Library Index, kirjastot.fi.
 package = Library Index
 core = 7.x
 
