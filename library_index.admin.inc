@@ -41,7 +41,7 @@ function library_index_list() {
   if (!empty($consortium)) {
     $header = array('Libarary name', 'Id');
     $rows = array();
-    $libraries = library_index_get_list('kyyti');
+    $libraries = library_index_get_list(variable_get('library_index_consortium', ''));
     foreach ($libraries as $value) {
       $rows[] = array($value->name->fi, $value->id);
     }
