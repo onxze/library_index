@@ -124,3 +124,15 @@ function library_index_get_list($consortium) {
   $result = $ldata->getLibraryList($consortium);
   return $result;
 }
+
+/**
+ * Get libarys information.
+ * @param string $lid libarary Id
+ * @return object result
+ */
+function library_index_library_info($lid) {
+  $api = variable_get('library_index_api', '');
+  $ldata = new LibraryIndexApi($api);
+  $result = $ldata->getLibraryData($lid);
+  return $result;
+}

@@ -1,0 +1,8 @@
+name = Library Information
+description = Library information from Library Index, kirjastot.fi.
+package = Library Index
+core = 7.x
+
+dependencies[] = library_index
+
+files[] = li_library_info.module

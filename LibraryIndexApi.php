@@ -112,6 +112,18 @@ class LibraryIndexApi {
     return $responseAsObject;
   }
 
+  public function getLibraryData($lid) {
+    $query = 'libraries/' . $lid;
+    $responseAsObject = $this->queryData($query);
+    return $responseAsObject;
+  }
+
+  // /libraries/services/:id  Kirjaston palveluiden listaus
+  // /libraries/staff/:id     Kirjaston henkilöstön listaus
+  // /departments/:id         Osaston tietueen haku
+  // /mobilestops/:id         Kirjastoauton pysäkin tietueen haku
+
+
   /**
    * Return last query http result code
    * @return int HTTP status

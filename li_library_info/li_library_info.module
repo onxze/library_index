@@ -1,0 +1,157 @@
+<?php
+
+/**
+ * Field for library's information.
+ */
+
+
+/**
+ * Implements hook_field_info().
+ */
+function li_library_info_field_info() {
+  return array(
+      'li_library_info' => array(
+          'label' => t('Library information'),
+          'description' => t('Library information from kirjastot.fi library index'),
+          'default_widget' => 'li_library_info_id',
+          'default_formatter' => 'li_library_info_texts',
+      ),
+  );
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function li_library_info_field_is_empty($item, $field) {
+  return empty($item['value']);
+}
+
+function li_library_info_field_formatter_info() {
+  return array(
+      'li_library_info_texts' => array(
+          'label' => t('Simple text-based formatter'),
+          'field types' => array('li_library_info'),
+      ),
+  );
+}
+
+/**
+ * Implements hook_field_formater_view().
+ */
+function li_library_info_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+  switch ($display['type']) {
+    case 'li_library_info_texts':
+      //drupal_add_css(drupal_get_path('module', 'li_library_info') . '/li_library_info.css', 'module', 'all', FALSE);
+      foreach ($items as $delta => $item) {
+        //drupal_add_library('system', 'drupal.ajax');
+
+        $data = library_index_library_info($item['value']);
+        $element[$delta] = array(
+            '#type' => 'html_tag',
+            '#tag' => 'p',
+            '#value' => theme('li_library_info_field', array('lib_info' => $data)),
+        );
+      }
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function li_library_info_field_widget_info() {
+  return array(
+      'li_library_info_id' => array(
+          'label' => t('Library Id'),
+          'field types' => array('li_library_info'),
+      ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function li_library_info_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $value = isset($items[$delta]['value']) ? $items[$delta]['value'] : '';
+
+  $widget = $element;
+  $widget['#delta'] = $delta;
+
+  switch ($instance['widget']['type']) {
+
+    case 'li_library_info_id':
+      $widget += array(
+          '#type' => 'textfield',
+          '#default_value' => $value,
+          '#size' => 7,
+          '#maxlength' => 7,
+      );
+      break;
+  }
+
+  $element['value'] = $widget;
+  return $element;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function li_library_info_theme() {
+  $themes = array(
+      'li_library_info_field' => array(
+          'arguments' => array('result' => NULL),
+          'template' => 'li-library-info-field',
+      ),
+  );
+  return $themes;
+}
+
+/**
+ * Process variables for li_library_info_field.tpl.php.
+ *
+ * @see li-library-info-field.tpl.php
+ */
+function template_preprocess_li_library_info_field(&$variables) {
+  $data = $variables['lib_info'];
+
+  global $language;
+  $lang = $language->language;
+
+  
+	if (!empty($data->name->$lang)) {
+    $variables['library_name'] = $data->name->$lang;
+	}
+	else {
+		$variables['library_name'] = $data->name->fi;
+	}
+
+	$variables['library_telephones'] = t('Telephone numbers');
+  $telephones = $data->contact->telephones;
+  foreach ($telephones as $tel) {
+  	$variables['library_tels'][] = $tel->name->$lang;
+  	$variables['library_tels'][] = $tel->number;
+  	$variables['library_tels'][] = $tel->description->$lang;
+  }
+
+  $variables['library_visit_address'] = t('Visit address');
+  $visit = $data->street_address;
+  $variables['library_vaddress_street'] = $visit->street->$lang;
+  $variables['library_vaddress_area'] = $visit->area->$lang;
+  $variables['library_vaddress_zipcode'] = $visit->zipcode;
+  $variables['library_vaddress_city'] = $visit->city->$lang;
+  
+  $variables['library_visit_postal'] = t('Postal address');
+  $postal = $data->mail_address;
+  $variables['library_paddress_post_box'] = $postal->post_box;
+  $variables['library_paddress_post_address'] = $postal->post_address->$lang;
+  $variables['library_paddress_post_office'] = $postal->post_office->$lang;
+  $variables['library_paddress_zipcode'] = $postal->zipcode;
+
+	//   // Coordinates
+	$variables['library_coord_lat'] = $data->coordinates->lat;
+	$variables['library_coord_lon'] = $data->coordinates->lon;
+
+}
