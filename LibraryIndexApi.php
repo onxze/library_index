@@ -29,6 +29,10 @@ class LibraryIndexApi {
     cache_clear_all(self::$cache_prefix, 'cache_field', TRUE);
   }
 
+  public static function clearLibraryIndexCacheField($field) {
+    cache_clear_all($field, 'cache_field', FALSE);
+  }
+
   /**
    * Read Library's Open Hours from kirjastot.fi api.
    * @param type $lid Library id at kirjastot.fi
