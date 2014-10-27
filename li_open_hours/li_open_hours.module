@@ -122,6 +122,10 @@ function li_open_hours_field_widget_info() {
           'label' => t('Library Id'),
           'field types' => array('li_open_hours'),
       ),
+      'li_open_hours_list' => array(
+          'label' => t('Library Id from library list'),
+          'field types' => array('li_open_hours'),
+      ),
   );
 }
 
@@ -142,6 +146,16 @@ function li_open_hours_field_widget_form(&$form, &$form_state, $field, $instance
           '#default_value' => $value,
           '#size' => 7,
           '#maxlength' => 7,
+      );
+      break;
+
+    case 'li_open_hours_list':
+      $options = library_index_library_list(t('No selection'));
+      $widget += array(
+          '#type' => 'select',
+          '#title' => t('Selected library'),
+          '#options' => $options,
+          '#default_value' => $value,
       );
       break;
   }
