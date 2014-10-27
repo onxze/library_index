@@ -47,10 +47,16 @@ function li_library_info_field_formatter_view($entity_type, $entity, $field, $in
         //drupal_add_library('system', 'drupal.ajax');
 
         $data = library_index_library_info($item['value']);
+        $options = array('lib_info' => $data);
+        $show_open_hours = TRUE;
+        if ($show_open_hours) {
+          $data = library_index_get_open_hours($item['value']);
+          $options['library_open_hours'] = theme('li_open_hours_field', array('open_hours' => $data, 'lid' => $item['value']));
+        }
         $element[$delta] = array(
             '#type' => 'html_tag',
             '#tag' => 'p',
-            '#value' => theme('li_library_info_field', array('lib_info' => $data)),
+            '#value' => theme('li_library_info_field', $options),
         );
       }
       break;
@@ -66,6 +72,10 @@ function li_library_info_field_widget_info() {
   return array(
       'li_library_info_id' => array(
           'label' => t('Library Id'),
+          'field types' => array('li_library_info'),
+      ),
+      'li_library_info_list' => array(
+          'label' => t('Library Id from library list'),
           'field types' => array('li_library_info'),
       ),
   );
@@ -88,6 +98,16 @@ function li_library_info_field_widget_form(&$form, &$form_state, $field, $instan
           '#default_value' => $value,
           '#size' => 7,
           '#maxlength' => 7,
+      );
+      break;
+
+    case 'li_library_info_list':
+      $options = library_index_library_list(t('No selection'));
+      $widget += array(
+          '#type' => 'select',
+          '#title' => t('Selected library'),
+          '#options' => $options,
+          '#default_value' => $value,
       );
       break;
   }
@@ -126,6 +146,10 @@ function template_preprocess_li_library_info_field(&$variables) {
 	}
 	else {
 		$variables['library_name'] = $data->name->fi;
+	}
+
+	if (isset($library_open_hours)) {
+		$variables['library_open_hours'] = $library_open_hours;
 	}
 
 	$variables['library_telephones'] = t('Telephone numbers');

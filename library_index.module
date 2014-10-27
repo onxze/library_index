@@ -136,3 +136,23 @@ function library_index_library_info($lid) {
   $result = $ldata->getLibraryData($lid);
   return $result;
 }
+
+function library_index_library_list($firstOption = NULL) {
+  global $language;
+  $lang = $language->language;
+
+  $consortium = variable_get('library_index_consortium', '');
+  $libarys = library_index_get_list($consortium);
+
+  $result = $firstOption !== NULL ? array($firstOption) : array();
+  foreach ($libarys as $value) {
+    if (empty($value->name->$lang)) {
+      $result[$value->id] = $value->name->fi;
+    }
+    else {
+      $result[$value->id] = $value->name->$lang;
+    }
+  }
+
+  return $result;
+}

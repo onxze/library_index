@@ -11,6 +11,14 @@
 <div class="lli-field">
 	<h2><?php echo $library_name; ?></h2>
 
+	<?php
+	if (isset($library_open_hours)) {
+		echo '<div class="lli-open-hours">';
+		echo $library_open_hours;
+		echo '</div>';
+	}
+	?>
+
 	<h3><?php echo $library_telephones; ?></h3>
 	<table><tr>
 	<?php for ($i = 0; $i < count($library_tels); $i++) { ?>
