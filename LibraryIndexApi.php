@@ -117,8 +117,16 @@ class LibraryIndexApi {
   }
 
   public function getLibraryData($lid) {
-    $query = 'libraries/' . $lid;
-    $responseAsObject = $this->queryData($query);
+    $cacheKey = self::$cache_prefix . 'ld-' . $lid;
+    $cacheData = cache_get($cacheKey, 'cache_field');
+    if (isset($cacheData->data)) {
+      $responseAsObject = $cacheData->data;
+    }
+    else {
+      $query = 'libraries/' . $lid;
+      $responseAsObject = $this->queryData($query);
+      cache_set($cacheKey, $responseAsObject, 'cache_field', CACHE_TEMPORARY);
+    }
     return $responseAsObject;
   }
 
