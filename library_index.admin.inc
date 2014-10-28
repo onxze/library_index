@@ -53,6 +53,8 @@ function library_index_list() {
   return system_settings_form($form);
 }
 
+// function system_settings_form_submit($form, &$form_state) {
+
 /**
  * Library Index cache settings form.
  */

@@ -76,7 +76,6 @@ function library_index_read() {
 function library_index_get_open_hours($lid, $start_date = NULL) {
   $result = '';
   if (isset($lid)) {
-//    $start_date = get_date('2014-10-20');
     $api = variable_get('library_index_api', '');
     $ldata = new LibraryIndexApi($api);
     $result = $ldata->getOpenHours($lid, $start_date);

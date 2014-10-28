@@ -62,6 +62,16 @@ class LibraryIndexApi {
     else {
       $query = 'libraries/schedules/' . $lid . '?as_weeks=1' . $date;
       $responseAsObject = $this->queryData($query);
+      if (isset($responseAsObject[0])) {
+        if (count($responseAsObject[0]) != 7) {
+          // If starts from Monday and has more than 7 days.
+          if ($responseAsObject[0][0]->day == 1) {
+            while (count($responseAsObject[0]) > 7) {
+              array_pop($responseAsObject[0]);
+            }
+          }
+        }
+      }
       cache_set($cacheKey, $responseAsObject, 'cache_field', CACHE_TEMPORARY);
     }
     return $responseAsObject;
