@@ -6,6 +6,15 @@
 include 'LibraryIndexApi.php';
 
 /**
+ * Implements hook_help().
+ */
+function library_index_help($path, $arg) {
+  if ($path == 'admin/help#library_index') {
+    return check_markup(file_get_contents(dirname(__FILE__) . "/README.txt"));
+  }
+}
+
+/**
  * Implemtents hook_menu().
  */
 function library_index_menu() {
