@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * Implements hook_uninstall().
+ */
+function library_index_uninstall() {
+  variable_del('library_index_api');
+  variable_del('library_index_consortium');
+}

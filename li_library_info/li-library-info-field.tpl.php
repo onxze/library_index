@@ -19,28 +19,33 @@
 	}
 	?>
 
-	<h3><?php echo $library_telephones; ?></h3>
-	<table><tr>
-	<?php for ($i = 0; $i < count($library_tels); $i++) { ?>
-		<td><?php echo $library_tels[$i]; ?></div>
-		<?php if (($i + 1) % 3 == 0) { echo '</tr><tr>'; } ?>
+	<?php if (isset($library_image_file)) { ?>
+	<div class="lli-library-image">
+		<img src="<?php echo $library_image_file; ?>" alt="<?php echo $library_image_alt; ?>" />
+	</div>
 	<?php } ?>
-	</tr></table>
+
+	<h3><?php echo $library_telephones; ?></h3>
+	<div class="lli-telephones">
+	<?php foreach ($library_tels as $tel) { ?>
+		<div class="lli-tel-row"><span class="lli-tel-title"><?php echo $tel['title']; ?></span class="lli-tel-number"<span><?php echo $tel['number']; ?></span></div>
+	<?php } ?>
+	</div>
 
 	<div class="lli-visit-address">
-	<h3><?php echo $library_visit_address; ?></h3>
-  <div><?php echo $library_vaddress_street; ?></div>
-  <div><?php echo $library_vaddress_area; ?></div>
-  <div><?php echo $library_vaddress_zipcode; ?></div>
-  <div><?php echo $library_vaddress_city; ?></div>
-  <!--<div><?php echo $library_coord_lat . ', ' . $library_coord_lon; ?></div>-->
-  </div>
-  
-  <div class="lli-mail-address">
-  <h3><?php echo $library_visit_postal; ?></h3>
-  <div><?php echo $library_paddress_post_box; ?></div>
-  <div><?php echo $library_paddress_post_address; ?></div>
-  <div><?php echo $library_paddress_post_office; ?></div>
-  <div><?php echo $library_paddress_zipcode; ?></div>
+		<h3><?php echo $library_visit_address; ?></h3>
+		<div><?php echo $library_vaddress_street; ?></div>
+    <div><?php echo $library_vaddress_area; ?></div>
+    <div><?php echo $library_vaddress_zipcode; ?></div>
+    <div><?php echo $library_vaddress_city; ?></div>
+    <!--<div><?php echo $library_coord_lat . ', ' . $library_coord_lon; ?></div>-->
+	</div>
+
+	<div class="lli-mail-address">
+	  <h3><?php echo $library_visit_postal; ?></h3>
+    <div><?php echo $library_paddress_post_box; ?></div>
+    <div><?php echo $library_paddress_post_address; ?></div>
+    <div><?php echo $library_paddress_post_office; ?></div>
+	  <div><?php echo $library_paddress_zipcode; ?></div>
 	</div>
 </div>

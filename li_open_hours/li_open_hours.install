@@ -5,7 +5,7 @@
  */
 function li_open_hours_field_schema($field) {
   $columns = array(
-    'value' => array('type' => 'varchar', 'length' => 7, 'not null' => FALSE),
+    'value' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE),
   );
   $indexes = array(
     'value' => array('value'),

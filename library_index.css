@@ -42,3 +42,13 @@ and open the template in the editor.
 .loh-field .li-today {
   font-weight: bold;
 }
+
+
+.lli-tel-title {
+  float: left;
+  width: 13em;
+}
+
+.lli-visit-address {
+  clear: both;
+}

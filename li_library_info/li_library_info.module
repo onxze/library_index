@@ -31,6 +31,7 @@ function li_library_info_field_formatter_info() {
       'li_library_info_texts' => array(
           'label' => t('Simple text-based formatter'),
           'field types' => array('li_library_info'),
+          'settings' => array('show_oh' => 'column', 'image_size' => 'column'),
       ),
   );
 }
@@ -40,16 +41,17 @@ function li_library_info_field_formatter_info() {
  */
 function li_library_info_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
+  $settings = $display['settings'];
+
   switch ($display['type']) {
     case 'li_library_info_texts':
-      //drupal_add_css(drupal_get_path('module', 'li_library_info') . '/li_library_info.css', 'module', 'all', FALSE);
+      drupal_add_css(drupal_get_path('module', 'library_index') . '/library_index.css', 'module', 'all', FALSE);
       foreach ($items as $delta => $item) {
-        //drupal_add_library('system', 'drupal.ajax');
-
         $data = library_index_library_info($item['value']);
-        $options = array('lib_info' => $data);
-        $show_open_hours = TRUE;
-        if ($show_open_hours) {
+
+        $options = array('lib_info' => $data, 'image_size' => $settings['image_size']);
+        if (module_exists('li_open_hours') && $settings['show_oh']) {
+          drupal_add_library('system', 'drupal.ajax');
           $data = library_index_get_open_hours($item['value']);
           $options['library_open_hours'] = theme('li_open_hours_field', array('open_hours' => $data, 'lid' => $item['value']));
         }
@@ -136,11 +138,11 @@ function li_library_info_theme() {
  */
 function template_preprocess_li_library_info_field(&$variables) {
   $data = $variables['lib_info'];
+  $image_size = $variables['image_size'];
 
   global $language;
   $lang = $language->language;
 
-  
 	if (!empty($data->name->$lang)) {
     $variables['library_name'] = $data->name->$lang;
 	}
@@ -154,10 +156,12 @@ function template_preprocess_li_library_info_field(&$variables) {
 
 	$variables['library_telephones'] = t('Telephone numbers');
   $telephones = $data->contact->telephones;
+  $i = 0;
   foreach ($telephones as $tel) {
-  	$variables['library_tels'][] = $tel->name->$lang;
-  	$variables['library_tels'][] = $tel->number;
-  	$variables['library_tels'][] = $tel->description->$lang;
+    $variables['library_tels'][$i]['title'] = $tel->name->$lang;
+    $variables['library_tels'][$i]['number'] = $tel->number;
+    $variables['library_tels'][$i]['description'] = $tel->description->$lang;
+    $i++;
   }
 
   $variables['library_visit_address'] = t('Visit address');
@@ -174,8 +178,65 @@ function template_preprocess_li_library_info_field(&$variables) {
   $variables['library_paddress_post_office'] = $postal->post_office->$lang;
   $variables['library_paddress_zipcode'] = $postal->zipcode;
 
-	//   // Coordinates
+	// Coordinates
 	$variables['library_coord_lat'] = $data->coordinates->lat;
 	$variables['library_coord_lon'] = $data->coordinates->lon;
 
+  if (isset($data->pictures[0])) {
+    if ($data->pictures[0]->files->$image_size !== null) {
+      $variables['library_image_file'] = $data->pictures[0]->files->$image_size;
+      if (empty($data->pictures[0]->name->$lang)) {
+        $variables['library_image_alt'] = $data->pictures[0]->name->fi;
+      }
+      else {
+        $variables['library_image_alt'] = $data->pictures[0]->name->$lang;
+      }
+    }
+  }
+
+}
+
+function li_library_info_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+  $form = array();
+  if ($display['type'] == 'li_library_info_texts') {
+    $form['show_oh'] = array(
+      '#title' => t('Show Open Hours'),
+      '#type' => 'checkbox', 
+      '#default_value' => $settings['show_oh'],
+      '#disabled' => !module_exists('li_open_hours'),
+    );
+    $options = array(
+      'none' => t('None'),
+      'small' => t('Small'),
+      'medium'=> t('Medium'),
+      'large'=> t('Large'),
+      'huge'=> t('Huge'),
+    );
+    $form['image_size'] = array(
+      '#title' => t('Show Open Hours'),
+      '#type' => 'select',
+      '#options' => $options,
+      '#default_value' => $settings['image_size'],
+    );
+  }
+  return $form;
+}
+
+function li_library_info_field_formatter_settings_summary($field, $instance, $view_mode) {
+  $display = $instance['display'][$view_mode];
+  $settings = $display['settings'];
+
+  $summary = '';
+  if ($display['type'] == 'li_library_info_texts') {
+    if ($settings['show_oh'] == TRUE) {
+      $summary = t('Show Library Open Hours.');
+    }
+    else {
+      $summary = t('Library Open Hours are not shown.');
+    }
+    $summary .= '<br />' . t('Library image size') . ': ' . t($settings['image_size']) . '.';
+  }
+  return $summary;
 }
