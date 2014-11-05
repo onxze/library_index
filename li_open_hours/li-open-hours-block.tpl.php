@@ -8,7 +8,7 @@
  * $rows          Array for day and open hours two elements day and times.
  */
 ?>
-<div class="loh-block">
+<div id="loh-open-hours-block" class="loh-block">
   <div class="loh-header">
     <span class="loh-header-week"><?php echo $header_week ?></span>
     <span class="loh-header-date"><?php echo $header_date ?></span>
@@ -23,4 +23,5 @@
       </span>
   </div>
   <?php } ?>
+  <div><span class="loh-prev"><?php echo $prev_link ?></span><span class="loh-next"><?php echo $next_link ?></span></div>
 </div>

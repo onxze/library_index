@@ -206,7 +206,12 @@ function li_open_hours_block_view($delta = '') {
       $block['subject'] = t('Open hours');
       $lid = &drupal_static('li_open_hours_lid');
       $data = library_index_get_open_hours($lid);
-      $block['content'] = theme('li_open_hours_block', array('open_hours' => $data));
+      if ($data === NULL || empty($data)) {
+        $block['content'] = '';
+      }
+      else {
+        $block['content'] = theme('li_open_hours_block', array('open_hours' => $data, 'lid' => $lid));
+      }
       break;
   }
   return $block;
@@ -236,6 +241,21 @@ function li_open_hours_theme() {
  */
 function template_preprocess_li_open_hours_block(&$variables) {
   li_open_hours_make_date($variables);
+  $prev_link = l(t('Previous'),
+          'li_next_week/nojs/0/' .
+          $variables['lid'] . '/' .
+          $variables['open_hours'][0]->date .
+          '/block',
+          array('attributes' => array('class' => array('use-ajax'))));
+  $variables['prev_link'] = $prev_link;
+
+  $next_link = l(t('Next'),
+          'li_next_week/nojs/1/' .
+          $variables['lid'] . '/' .
+          $variables['open_hours'][0]->date .
+          '/block',
+          array('attributes' => array('class' => array('use-ajax'))));
+  $variables['next_link'] = $next_link;
 }
 
 /**
@@ -303,7 +323,7 @@ function li_open_hours_make_date(&$variables) {
 /**
  * Callback for next/prev links.
  */
-function li_open_hours_link_response($type = 'ajax', $direction = 0, $lid = NULL, $date = NULL) {
+function li_open_hours_link_response($type = 'ajax', $direction = 0, $lid = NULL, $date = NULL, $plugin = 'field') {
   if (empty($lid) || empty($date)) {
     return;
   }
@@ -316,9 +336,9 @@ function li_open_hours_link_response($type = 'ajax', $direction = 0, $lid = NULL
       $start_date += (7 * 24 * 60 * 60);
     }
     $data = library_index_get_open_hours($lid, $start_date);
-    $output = theme('li_open_hours_field', array('open_hours' => $data, 'lid' => $lid));
+    $output = theme('li_open_hours_' . $plugin, array('open_hours' => $data, 'lid' => $lid));
     $commands = array();
-    $commands[] = ajax_command_replace('#loh-open-hours-field', $output);
+    $commands[] = ajax_command_replace('#loh-open-hours-' . $plugin, $output);
     $page = array('#type' => 'ajax', '#commands' => $commands);
     ajax_deliver($page);
   }

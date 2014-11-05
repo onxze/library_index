@@ -9,7 +9,9 @@
  */
 ?>
 <div class="lli-field">
+	<?php if (isset($library_name)) { ?>
 	<h2><?php echo $library_name; ?></h2>
+	<?php } ?>
 
 	<?php
 	if (isset($library_open_hours)) {
@@ -25,13 +27,16 @@
 	</div>
 	<?php } ?>
 
+	<?php if (isset($library_telephones)) { ?>
 	<h3><?php echo $library_telephones; ?></h3>
 	<div class="lli-telephones">
 	<?php foreach ($library_tels as $tel) { ?>
 		<div class="lli-tel-row"><span class="lli-tel-title"><?php echo $tel['title']; ?></span class="lli-tel-number"<span><?php echo $tel['number']; ?></span></div>
 	<?php } ?>
 	</div>
+	<?php } ?>
 
+	<?php if (isset($library_visit_address)) { ?>
 	<div class="lli-visit-address">
 		<h3><?php echo $library_visit_address; ?></h3>
 		<div><?php echo $library_vaddress_street; ?></div>
@@ -40,12 +45,15 @@
     <div><?php echo $library_vaddress_city; ?></div>
     <!--<div><?php echo $library_coord_lat . ', ' . $library_coord_lon; ?></div>-->
 	</div>
+	<?php } ?>
 
+	<?php if (isset($library_post_postal)) { ?>
 	<div class="lli-mail-address">
-	  <h3><?php echo $library_visit_postal; ?></h3>
+	  <h3><?php echo $library_post_postal; ?></h3>
     <div><?php echo $library_paddress_post_box; ?></div>
     <div><?php echo $library_paddress_post_address; ?></div>
     <div><?php echo $library_paddress_post_office; ?></div>
 	  <div><?php echo $library_paddress_zipcode; ?></div>
 	</div>
+	<?php } ?>
 </div>

@@ -9,6 +9,7 @@
  */
 ?>
 <div id="loh-open-hours-field" class="loh-field">
+  <?php if (!empty($rows)) { ?>
   <div class="loh-header">
     <span class="loh-header-week"><?php echo $header_week ?></span>
     <span class="loh-header-date"><?php echo $header_date ?></span>
@@ -24,4 +25,5 @@
   </div>
   <?php } ?>
   <div><span class="loh-prev"><?php echo $prev_link ?></span><span class="loh-next"><?php echo $next_link ?></span></div>
+  <?php } ?>
 </div>

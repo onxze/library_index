@@ -14,9 +14,22 @@ and open the template in the editor.
 
 .loh_block .loh_row .loh-times {}*/
 
+/* Open Hours Block */
 .loh-block .loh-row .loh-label {
   float: left;
   width: 6em;
+}
+
+.loh-block .loh-prev {
+  float: left;
+}
+.loh-block .loh-next {
+  float: right;
+}
+
+/* Open Hours Field */
+.loh-field  {
+  width: 14em;
 }
 
 .loh-field .loh-row .loh-label {
@@ -26,9 +39,11 @@ and open the template in the editor.
 
 .loh-field .loh-prev {
   padding-left: 1em;
+  float: left;
 }
 .loh-field .loh-next {
-  padding-left: 3em;
+  padding-right: 1em;
+  float: right;
 }
 
 .li-open-close.li-open span {
@@ -43,12 +58,20 @@ and open the template in the editor.
   font-weight: bold;
 }
 
-
+/* Library information */
 .lli-tel-title {
   float: left;
   width: 13em;
 }
 
 .lli-visit-address {
+  clear: both;
+}
+
+.lli-post-address {
+  clear: both;
+}
+
+.lli-tel-row {
   clear: both;
 }

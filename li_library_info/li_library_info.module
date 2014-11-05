@@ -31,7 +31,20 @@ function li_library_info_field_formatter_info() {
       'li_library_info_texts' => array(
           'label' => t('Simple text-based formatter'),
           'field types' => array('li_library_info'),
-          'settings' => array('show_oh' => 'column', 'image_size' => 'column'),
+          'settings' => array(
+            'show_name' => FALSE,
+            'show_description' => FALSE,
+            'show_oh' => FALSE,
+            'show_telephones' => FALSE,
+            'show_directions' => FALSE,
+            'show_parking' => FALSE,
+            'show_websites' => FALSE,
+            'show_street_address' => FALSE,
+            'show_mail_address' => FALSE,
+            'show_coordinates' => FALSE,
+            'show_homepage' => FALSE,
+            'image_size' => 0,
+          ),
       ),
   );
 }
@@ -49,8 +62,8 @@ function li_library_info_field_formatter_view($entity_type, $entity, $field, $in
       foreach ($items as $delta => $item) {
         $data = library_index_library_info($item['value']);
 
-        $options = array('lib_info' => $data, 'image_size' => $settings['image_size']);
-        if (module_exists('li_open_hours') && $settings['show_oh']) {
+        $options = array('lib_info' => $data, 'settings' => $settings);
+        if ($settings['show_oh']) {
           drupal_add_library('system', 'drupal.ajax');
           $data = library_index_get_open_hours($item['value']);
           $options['library_open_hours'] = theme('li_open_hours_field', array('open_hours' => $data, 'lid' => $item['value']));
@@ -138,51 +151,63 @@ function li_library_info_theme() {
  */
 function template_preprocess_li_library_info_field(&$variables) {
   $data = $variables['lib_info'];
-  $image_size = $variables['image_size'];
+
+  $settings = $variables['settings'];
+  $image_size = $settings['image_size'];
 
   global $language;
   $lang = $language->language;
 
-	if (!empty($data->name->$lang)) {
-    $variables['library_name'] = $data->name->$lang;
-	}
-	else {
-		$variables['library_name'] = $data->name->fi;
-	}
-
-	if (isset($library_open_hours)) {
-		$variables['library_open_hours'] = $library_open_hours;
-	}
-
-	$variables['library_telephones'] = t('Telephone numbers');
-  $telephones = $data->contact->telephones;
-  $i = 0;
-  foreach ($telephones as $tel) {
-    $variables['library_tels'][$i]['title'] = $tel->name->$lang;
-    $variables['library_tels'][$i]['number'] = $tel->number;
-    $variables['library_tels'][$i]['description'] = $tel->description->$lang;
-    $i++;
+  if ($settings['show_name']) {
+    if (!empty($data->name->$lang)) {
+      $variables['library_name'] = $data->name->$lang;
+    }
+    else {
+      $variables['library_name'] = $data->name->fi;
+    }
   }
 
-  $variables['library_visit_address'] = t('Visit address');
-  $visit = $data->street_address;
-  $variables['library_vaddress_street'] = $visit->street->$lang;
-  $variables['library_vaddress_area'] = $visit->area->$lang;
-  $variables['library_vaddress_zipcode'] = $visit->zipcode;
-  $variables['library_vaddress_city'] = $visit->city->$lang;
-  
-  $variables['library_visit_postal'] = t('Postal address');
-  $postal = $data->mail_address;
-  $variables['library_paddress_post_box'] = $postal->post_box;
-  $variables['library_paddress_post_address'] = $postal->post_address->$lang;
-  $variables['library_paddress_post_office'] = $postal->post_office->$lang;
-  $variables['library_paddress_zipcode'] = $postal->zipcode;
+  if (isset($library_open_hours)) {
+    $variables['library_open_hours'] = $library_open_hours;
+  }
 
-	// Coordinates
-	$variables['library_coord_lat'] = $data->coordinates->lat;
-	$variables['library_coord_lon'] = $data->coordinates->lon;
+  if ($settings['show_telephones']) {
+    $variables['library_telephones'] = t('Telephone numbers');
+    $telephones = $data->contact->telephones;
+    $i = 0;
+    foreach ($telephones as $tel) {
+      $variables['library_tels'][$i]['title'] = $tel->name->$lang;
+      $variables['library_tels'][$i]['number'] = $tel->number;
+      $variables['library_tels'][$i]['description'] = $tel->description->$lang;
+      $i++;
+    }
+  }
 
-  if (isset($data->pictures[0])) {
+  if ($settings['show_street_address']) {
+    $variables['library_visit_address'] = t('Visit address');
+    $visit = $data->street_address;
+    $variables['library_vaddress_street'] = $visit->street->$lang;
+    $variables['library_vaddress_area'] = $visit->area->$lang;
+    $variables['library_vaddress_zipcode'] = $visit->zipcode;
+    $variables['library_vaddress_city'] = $visit->city->$lang;
+  }
+
+  if ($settings['show_mail_address']) {
+    $variables['library_postal_postal'] = t('Postal address');
+    $postal = $data->mail_address;
+    $variables['library_paddress_post_box'] = $postal->post_box;
+    $variables['library_paddress_post_address'] = $postal->post_address->$lang;
+    $variables['library_paddress_post_office'] = $postal->post_office->$lang;
+    $variables['library_paddress_zipcode'] = $postal->zipcode;
+  }
+
+  if ($settings['show_coordinates']) {
+    // Coordinates
+    $variables['library_coord_lat'] = $data->coordinates->lat;
+    $variables['library_coord_lon'] = $data->coordinates->lon;
+  }
+
+  if (isset($data->pictures[0]) && $image_size != 'no_image') {
     if ($data->pictures[0]->files->$image_size !== null) {
       $variables['library_image_file'] = $data->pictures[0]->files->$image_size;
       if (empty($data->pictures[0]->name->$lang)) {
@@ -201,25 +226,81 @@ function li_library_info_field_formatter_settings_form($field, $instance, $view_
   $settings = $display['settings'];
   $form = array();
   if ($display['type'] == 'li_library_info_texts') {
+    $form['show_name'] = array(
+      '#title' => t('Show  name'),
+      '#type' => 'checkbox',
+      '#default_value' => $settings['show_name'],
+    );
+    $form['show_description'] = array(
+      '#title' => t('Show description'),
+      '#type' => 'checkbox',
+      '#default_value' => $settings['show_description'],
+    );
     $form['show_oh'] = array(
       '#title' => t('Show Open Hours'),
-      '#type' => 'checkbox', 
+      '#type' => 'checkbox',
       '#default_value' => $settings['show_oh'],
-      '#disabled' => !module_exists('li_open_hours'),
     );
+    $form['show_telephones'] = array(
+      '#title' => t('Show telephones'),
+      '#type' => 'checkbox',
+      '#default_value' => $settings['show_telephones'],
+    );
+    // $form['show_directions'] = array(
+    //   '#title' => t('Show directions'),
+    //   '#type' => 'checkbox',
+    //   '#default_value' => $settings['show_directions'],
+    // );
+    // $form['show_parking'] = array(
+    //   '#title' => t('Show parking'),
+    //   '#type' => 'checkbox',
+    //   '#default_value' => $settings['show_parking'],
+    // );
+    // $form['show_websites'] = array(
+    //   '#title' => t('Show websites'),
+    //   '#type' => 'checkbox',
+    //   '#default_value' => $settings['show_websites'],
+    // );
+    $form['show_street_address'] = array(
+      '#title' => t('Show street address'),
+      '#type' => 'checkbox',
+      '#default_value' => $settings['show_street_address'],
+    );
+    $form['show_mail_address'] = array(
+      '#title' => t('Show mail address'),
+      '#type' => 'checkbox',
+      '#default_value' => $settings['show_mail_address'],
+    );
+    $form['show_coordinates'] = array(
+      '#title' => t('Show  coordinates'),
+      '#type' => 'checkbox',
+      '#default_value' => $settings['show_coordinates'],
+    );
+    // $form['show_homepage'] = array(
+    //   '#title' => t('Show  homepage'),
+    //   '#type' => 'checkbox',
+    //   '#default_value' => $settings['show_homepage'],
+    // );
     $options = array(
-      'none' => t('None'),
+      'no_image' => t('No image'),
       'small' => t('Small'),
       'medium'=> t('Medium'),
       'large'=> t('Large'),
       'huge'=> t('Huge'),
     );
     $form['image_size'] = array(
-      '#title' => t('Show Open Hours'),
+      '#title' => t('Image size'),
       '#type' => 'select',
       '#options' => $options,
       '#default_value' => $settings['image_size'],
     );
+// branch type
+// consortium
+// provincial area
+// isil
+// name short
+// description
+// type
   }
   return $form;
 }
@@ -230,13 +311,29 @@ function li_library_info_field_formatter_settings_summary($field, $instance, $vi
 
   $summary = '';
   if ($display['type'] == 'li_library_info_texts') {
-    if ($settings['show_oh'] == TRUE) {
-      $summary = t('Show Library Open Hours.');
-    }
-    else {
-      $summary = t('Library Open Hours are not shown.');
-    }
-    $summary .= '<br />' . t('Library image size') . ': ' . t($settings['image_size']) . '.';
+    $summary = t('Show ');
+    $summary .= $settings['show_name'] ? t('name') . ', ' : '';
+    $summary .= $settings['show_description'] ? t('description') . ', ' : '';
+    $summary .= $settings['show_oh'] ? t('open hours') . ', ' : '';
+    $summary .= $settings['show_telephones'] ? t('telephones') . ', ' : '';
+    $summary .= $settings['show_directions'] ? t('directions') . ', ' : '';
+    $summary .= $settings['show_parking'] ? t('parking') . ', ' : '';
+    $summary .= $settings['show_websites'] ? t('websites') . ', ' : '';
+    $summary .= $settings['show_street_address'] ? t('street address') . ', ' : '';
+    $summary .= $settings['show_mail_address'] ? t('mail address') . ', ' : '';
+    $summary .= $settings['show_coordinates'] ? t('coordinates') . ', ' : '';
+    $summary .= $settings['show_homepage'] ? t('homepage') . ', ' : '';
+
+
+    $options = array(
+      'no_image' => t('No image'),
+      'small' => t('Small'),
+      'medium'=> t('Medium'),
+      'large'=> t('Large'),
+      'huge'=> t('Huge'),
+    );
+    $summary .= '<br />' . t('library image size') . ': ';
+    $summary .= strtolower($options[$settings['image_size']]) . '.';
   }
   return $summary;
 }
