@@ -208,6 +208,7 @@ class LibraryIndexApi {
     $this->clearError();
     if (empty($this->apiUrl)) {
       $this->setError('LIA_NO_API_URL', t('No Api URL'));
+      watchdog('LibraryIndexApi', t('No Api URL'), array(), WATCHDOG_ERROR);
       return NULL;
     }
     $fullURL = $this->apiUrl . $query;
@@ -231,6 +232,7 @@ class LibraryIndexApi {
 
     if (curl_errno($curl)) {
       $this->setError('LIA_CURL_FAIL', t('Curl error') . ': ' . curl_error($curl), curl_errno($curl));
+      watchdog('LibraryIndexApi', t('Curl error') . ': ' . curl_error($curl), curl_errno($curl), array(), WATCHDOG_ERROR);
       return NULL;
     }
 
@@ -238,6 +240,7 @@ class LibraryIndexApi {
 
     if ($this->httpStatus != 200) {
       $this->setError('LIA_NOT_200', t('HTTP status not 200'));
+      watchdog('LibraryIndexApi', t('HTTP status not 200'), array(), WATCHDOG_ERROR);
       return NULL;
     }
 
