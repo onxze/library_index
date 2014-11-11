@@ -215,7 +215,6 @@ class LibraryIndexApi {
     $this->httpStatus = 0;
 
     $curl = curl_init();
-    curl_reset($curl);
 
     curl_setopt($curl, CURLOPT_URL, $fullURL);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
