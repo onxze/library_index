@@ -120,7 +120,8 @@ class LibraryIndexApi {
     }
     else {
       $query = 'search/libraries?consortium=' . $consortium;
-      $responseAsObject = $this->queryData($query);
+     $responseAsObject = $this->queryData($query);
+
       cache_set($cacheKey, $responseAsObject, 'cache_field', CACHE_TEMPORARY);
     }
     return $responseAsObject;
@@ -213,7 +214,6 @@ class LibraryIndexApi {
     }
     $fullURL = $this->apiUrl . $query;
     $this->httpStatus = 0;
-
     $curl = curl_init();
 
     curl_setopt($curl, CURLOPT_URL, $fullURL);
@@ -223,7 +223,6 @@ class LibraryIndexApi {
         "Accept-Language: fi",
         "Content-Type: application/json",
     );
-
     array_push($headers, "Accept: application/json");
     curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 

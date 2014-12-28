@@ -202,7 +202,8 @@ function li_open_hours_block_view($delta = '') {
 
   switch ($delta) {
     case 'block_open_hours':
-      drupal_add_css(drupal_get_path('module', 'li_open_hours') . '/li_open_hours.css', 'module', 'all', FALSE);
+      drupal_add_css(drupal_get_path('module', 'library_index') . '/library_index.css', 'module', 'all', FALSE);
+      drupal_add_library('system', 'drupal.ajax');
       $block['subject'] = t('Open hours');
       $lid = &drupal_static('li_open_hours_lid');
       $data = library_index_get_open_hours($lid);
@@ -241,21 +242,19 @@ function li_open_hours_theme() {
  */
 function template_preprocess_li_open_hours_block(&$variables) {
   li_open_hours_make_date($variables);
-  $prev_link = l(t('Previous'),
-          'li_next_week/nojs/0/' .
-          $variables['lid'] . '/' .
-          $variables['open_hours'][0]->date .
-          '/block',
-          array('attributes' => array('class' => array('use-ajax'))));
-  $variables['prev_link'] = $prev_link;
 
-  $next_link = l(t('Next'),
-          'li_next_week/nojs/1/' .
-          $variables['lid'] . '/' .
-          $variables['open_hours'][0]->date .
-          '/block',
-          array('attributes' => array('class' => array('use-ajax'))));
-  $variables['next_link'] = $next_link;
+  $prev_link_url = url('li_next_week/nojs/0/' . $variables['lid'] . '/' .
+    $variables['open_hours'][0]->date . '/block');
+
+  $variables['prev_link_url'] = $prev_link_url;
+  $variables['prev_link_class'] = 'use-ajax';
+
+  $next_link_url = url('li_next_week/nojs/1/' . $variables['lid'] . '/' .
+    $variables['open_hours'][0]->date . '/block');
+  $variables['next_link_url'] = $next_link_url;
+  $variables['next_link_class'] = 'use-ajax';
+
+//  $variables['next_link'] = $next_link;
 }
 
 /**
@@ -298,7 +297,7 @@ function li_open_hours_make_date(&$variables) {
 
   $variables['header_week'] = t('Week') . ' ' . $open_hours[0]->week;
   $variables['header_date'] = $start_date[2] . '.' . $start_date[1] .
-          '. - ' . $start_end[2] . '.' . $start_end[1];
+          '. - ' . $start_end[2] . '.' . $start_end[1] . '.';
 
   foreach ($open_hours as $day) {
     $row = array();
@@ -343,7 +342,7 @@ function li_open_hours_link_response($type = 'ajax', $direction = 0, $lid = NULL
     ajax_deliver($page);
   }
   else {
-    $output = t("This is some content delivered via a page load.");
-    return $output;
+    drupal_set_message(t('JavaScript should be enabled to avoid page reloads.'));
+    drupal_goto();
   }
 }
