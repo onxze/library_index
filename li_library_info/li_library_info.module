@@ -176,7 +176,7 @@ function template_preprocess_li_library_info_field(&$variables) {
     $telephones = $data->contact->telephones;
     $i = 0;
     foreach ($telephones as $tel) {
-      $variables['library_tels'][$i]['title'] = $tel->name->$lang;
+      $variables['library_tels'][$i]['title'] = empty($tel->name->$lang) ? '&nbsp;' : $tel->name->$lang;
       $variables['library_tels'][$i]['number'] = $tel->number;
       $variables['library_tels'][$i]['description'] = $tel->description->$lang;
       $i++;
