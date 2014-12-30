@@ -26,4 +26,5 @@
   <div>
     <span class="loh-prev"><a href="<?php echo $prev_link_url; ?>" class="<?php echo $prev_link_class; ?>"><?php echo t('Previous'); ?></a></span>
     <span class="loh-next"><a href="<?php echo $next_link_url; ?>" class="<?php echo $next_link_class ?>"><?php echo t('Next'); ?></a></span>
+  </div>
 </div>
