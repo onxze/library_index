@@ -14,22 +14,31 @@ and open the template in the editor.
 
 .loh_block .loh_row .loh-times {}*/
 
+.clear {
+  clear: both;
+}
+
 /* Open Hours Block */
 .loh-block .loh-row .loh-label {
   float: left;
   width: 6em;
 }
 
+.loh-block .loh-link-line {
+  height: 1rem;
+}
+
 .loh-block .loh-prev {
   float: left;
 }
+
 .loh-block .loh-next {
   float: right;
 }
 
 /* Open Hours Field */
 .loh-field  {
-  width: 14em;
+  width: 16em;
 }
 
 .loh-field .loh-row .loh-label {

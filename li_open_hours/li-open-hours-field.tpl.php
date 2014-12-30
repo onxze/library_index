@@ -24,6 +24,10 @@
       </span>
   </div>
   <?php } ?>
-  <div><span class="loh-prev"><?php echo $prev_link ?></span><span class="loh-next"><?php echo $next_link ?></span></div>
+  <div>
+    <span class="loh-prev"><?php echo $prev_link ?></span>
+    <span class="loh-next"><?php echo $next_link ?></span>
+  </div>
+  <div class="clear"></div>
   <?php } ?>
 </div>
