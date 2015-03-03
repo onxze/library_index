@@ -1,8 +1,0 @@
-name = Library Open Hours
-description = Open Hours information from Library Index, kirjastot.fi.
-package = Library Index
-core = 7.x
-
-dependencies[] = library_index
-
-files[] = li_open_hours.module
